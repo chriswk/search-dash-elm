@@ -130,11 +130,21 @@ headerBox model =
 
 footerBox : Model -> Html Msg
 footerBox model =
-    div [ class [ Styles.Links ] ]
-        [ ul []
-            [ li [] [ text "Controlpanel" ]
+    let
+        error =
+            case model.lastError of
+                Nothing ->
+                    ""
+
+                Just err ->
+                    toString err
+    in
+        div [ class [ Styles.Links ] ]
+            [ ul []
+                [ li [] [ text "Controlpanel" ]
+                , text error
+                ]
             ]
-        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
