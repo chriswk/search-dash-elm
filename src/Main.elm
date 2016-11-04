@@ -6,31 +6,31 @@ import DashStyles as Styles
 import Time exposing (Time)
 import Html.CssHelpers
 import Date
-
-
-type Status
-    = WEAK
-    | GOOD
-    | BAD
-    | INACTIVE
-    | UNKNOWN
+import Models exposing (Status(..), SiteStatus)
+import Requests.Status as StatusRequest
+import Http
+import Date.Format
+import Task
 
 
 type Msg
     = NoOp
-    | UpdatePoll String
     | TogglePoll
-
-
-type alias UpdateStat =
-    { updatedAt : Time, timeTaken : Int }
+    | StatusFetchFail Http.Error
+    | StatusFetchSucceed SiteStatus
 
 
 type alias Model =
     { globalStatus : Status
-    , lastUpdated : Maybe UpdateStat
     , polling : Bool
+    , siteStatus : Maybe SiteStatus
+    , lastError : Maybe Http.Error
     }
+
+
+dateFormat : String
+dateFormat =
+    "%Y%m%d %H:%M:%S"
 
 
 
@@ -45,9 +45,14 @@ type alias Model =
 ---
 
 
+getStatus : Cmd Msg
+getStatus =
+    Task.perform StatusFetchFail StatusFetchSucceed StatusRequest.fetchStatus
+
+
 init : ( Model, Cmd Msg )
 init =
-    { globalStatus = GOOD, lastUpdated = Nothing, polling = True } ! []
+    { globalStatus = UNKNOWN, polling = True, siteStatus = Nothing, lastError = Nothing } ! [ getStatus ]
 
 
 subscriptions : Model -> Sub Msg
@@ -66,7 +71,16 @@ view model =
 
 boxes : Model -> Html Msg
 boxes model =
-    div [] []
+    let
+        siteStatus =
+            case model.siteStatus of
+                Nothing ->
+                    ""
+
+                Just stat ->
+                    toString stat
+    in
+        div [] [ text siteStatus ]
 
 
 headerBox : Model -> Html Msg
@@ -90,17 +104,17 @@ headerBox model =
                     class [ Styles.Unknown ]
 
         updateStat =
-            case model.lastUpdated of
+            case model.siteStatus of
                 Nothing ->
                     ""
 
                 Just stat ->
                     let
                         d =
-                            Date.fromTime stat.updatedAt
+                            Date.fromTime stat.checkPerformed
 
                         ds =
-                            toString d
+                            Date.Format.format dateFormat d
 
                         taken =
                             (toString stat.timeTaken)
@@ -125,7 +139,18 @@ footerBox model =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    model ! []
+    case msg of
+        NoOp ->
+            model ! []
+
+        TogglePoll ->
+            { model | polling = not model.polling } ! []
+
+        StatusFetchFail error ->
+            Debug.log "Failed fetching data" { model | lastError = Just error } ! []
+
+        StatusFetchSucceed status ->
+            { model | siteStatus = Just status } ! []
 
 
 main : Program Never
