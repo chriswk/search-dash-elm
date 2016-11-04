@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "elm": "^0.17.1",
+    "elm-css": "^0.6.0",
+    "elm-hot-loader": "^0.3.4",
+    "elm-webpack-loader": "^3.0.6",
+    "html-webpack-plugin": "^2.24.1",
+    "rimraf": "^2.5.4",
+    "webpack": "^1.13.3",
+    "webpack-dev-server": "^1.16.2",
+    "webpack-merge": "^0.15.0"
+  },
+  "devDependencies": {
+    "elm-css-webpack-loader": "^2.0.2"
+  },
+  "name": "search-dash-elm",
+  "version": "1.0.0",
+  "description": "A Status dashboard in Elm",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --hot --inline --content-base src/",
+    "build": "rimraf dist && webpack",
+    "test": "elm-test tests/TestRunner.elm",
+    "watch": "webpack --watch",
+    "publish": "npm run build && node publish.js"
+  },
+  "repository": {
+    "url": "git@github.schibsted.io:christopher-kolstad/search-dash-elm.git",
+    "type": "git"
+  },
+  "author": "chrkolst <christopher.kolstad@finn.no>",
+  "license": "MIT"
+}
