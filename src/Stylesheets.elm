@@ -1,9 +1,9 @@
 port module Stylesheets exposing (..)
 
 import Css.File exposing (..)
-import Styles
 import Html exposing (div)
-import Html.App as App
+import Html.App as Html
+import DashStyles as Dash
 
 
 port files : CssFileStructure -> Cmd msg
@@ -11,13 +11,14 @@ port files : CssFileStructure -> Cmd msg
 
 cssFiles : CssFileStructure
 cssFiles =
-    toFileStructure [ ( "styles.css", compile [ Styles.css ] ) ]
+    toFileStructure [ ( "dash.css", compile [ Dash.css ] ) ]
 
-main : Program.never
+
+main : Program Never
 main =
-  App.program {
-    init = ( (), files cssFiles )
-    , view = \_ -> (div [] [])
-    , update = \_ _ -> ( (), Cmd.none )
-    , subscriptions = \_ -> Sub.none
-}
+    Html.program
+        { init = ( (), files cssFiles )
+        , view = \_ -> (div [] [])
+        , update = \_ _ -> ( (), Cmd.none )
+        , subscriptions = \_ -> Sub.none
+        }

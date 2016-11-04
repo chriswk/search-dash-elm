@@ -1,104 +1,220 @@
-var path              = require( 'path' );
-var webpack           = require( 'webpack' );
-var merge             = require( 'webpack-merge' );
-var HtmlWebpackPlugin = require( 'html-webpack-plugin' );
-console.log( 'WEBPACK GO!');
+/* global process */
 
-// detemine build env
-var TARGET_ENV = process.env.npm_lifecycle_event === 'build' ? 'production' : 'development';
+var AutoPrefixer = require('autoprefixer');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
+var Webpack = require('webpack');
+var WebpackMerge = require('webpack-merge');
 
-// common webpack config
-var commonConfig = {
 
-  output: {
-    path:       path.resolve( __dirname, 'dist/' ),
-    filename: '[hash].js',
-  },
+var npm_target = process.env.npm_lifecycle_event;
+var environment;
 
-  resolve: {
-    modulesDirectories: ['node_modules'],
-    extensions:         ['', '.js', '.elm']
-  },
-
-  module: {
-    noParse: /\.elm$/
-  },
-
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: 'src/index.html',
-      inject:   'body',
-      filename: 'index.html'
-    })
-  ],
-
+if (npm_target === 'start') {
+    environment = 'development';
+} else if (npm_target === 'test') {
+    environment = 'test-unit';
+} else {
+    environment = 'production';
 }
 
-// additional webpack settings for local env (when invoked by 'npm start')
-if ( TARGET_ENV === 'development' ) {
-  console.log( 'Serving locally...');
+var common = {
+    entry: {
+        app: './src/app.js',
+        vendor: './src/vendor.js'
+    },
 
-  module.exports = merge( commonConfig, {
-
-    entry: [
-      'webpack-dev-server/client?http://localhost:8080',
-      path.join( __dirname, 'src/index.js' )
-    ],
-
-    devServer: {
-      inline:   true,
-      progress: true
+    resolve: {
+        modulesDirectories: ['node_modules'],
+        extensions: ['', '.js', '.elm']
     },
 
     module: {
-      loaders: [
-        {
-          test: "/Stylesheets\.elm$/",
-          loader: 'elm-css'
-        },
-        {
-          test:    /\.elm$/,
-          exclude: [/elm-stuff/, /node_modules/, path.resolve(__dirname, 'src/Stylesheets.elm')],
-          loader:  'elm-hot!elm-webpack'
-        }
-      ]
-    }
+        loaders: [{
+            test: /\.(eot|svg|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?/,
+            loader: 'file-loader'
+        }],
 
-  });
-}
-
-// additional webpack settings for prod env (when invoked via 'npm run build')
-if ( TARGET_ENV === 'production' ) {
-  console.log( 'Building for prod...');
-
-  module.exports = merge( commonConfig, {
-
-    entry: path.join( __dirname, 'src/index.js' ),
-
-    module: {
-      loaders: [
-        {
-          test: "/Stylesheets\.elm$/",
-          loader: 'style!css!elm-css-webpack'
-        },
-        {
-          test:    /\.elm$/,
-          exclude: [/elm-stuff/, /node_modules/, path.resolve(__dirname, 'src/Stylesheets.elm')],
-          loader:  'elm-webpack'
-        }
-      ]
+        noParse: /^(?!.*Stylesheets).*\.elm$/
     },
 
     plugins: [
-      new webpack.optimize.OccurenceOrderPlugin(),
+        new HtmlWebpackPlugin({
+            template: 'src/index.tpl.html'
+        }),
+        new Webpack.optimize.CommonsChunkPlugin({
+            name: "init",
+            minChunks: Infinity
+        }),
+        new Webpack.optimize.OccurenceOrderPlugin()
+    ],
 
-      // minify & mangle JS/CSS
-      new webpack.optimize.UglifyJsPlugin({
-          minimize:   true,
-          compressor: { warnings: false }
-          // mangle:  true
-      })
-    ]
+    postcss: [AutoPrefixer({
+        browsers: ['last 2 versions']
+    })],
 
-  });
+    target: 'web'
+};
+
+var extractCssVendor = null;
+
+if (environment === 'development') {
+    console.log('running development');
+    extractCssVendor = new ExtractTextPlugin('vendor.css');
+
+    var devOnly = {
+        output: {
+            filename: '[name].js'
+        },
+
+        module: {
+            loaders: [{
+                    test: /\.css$/,
+                    loader: extractCssVendor.extract('style-loader', 'css-loader')
+                },
+
+                {
+                    test: /src\/Stylesheets.elm$/,
+                    loaders: [
+                        'style-loader',
+                        'css-loader',
+                        'postcss-loader',
+                        'elm-css-webpack-loader'
+                    ]
+                },
+
+                {
+                    test: /\.elm$/,
+                    exclude: [
+                        /elm-stuff/,
+                        /node_modules/,
+                        /src\/Stylesheets.elm$/
+                    ],
+                    loaders: [
+                        'elm-hot-loader',
+                        'elm-webpack-loader'
+                    ]
+                }
+            ]
+        },
+
+        plugins: [
+            extractCssVendor
+        ],
+
+        devServer: {
+            inline: true,
+            progress: true,
+            stats: 'errors-only'
+        }
+    };
+
+    module.exports = WebpackMerge(common, devOnly);
+} else if (environment === 'test-unit') {
+    console.log('running unit tests');
+
+    var unitTestsOnly = {
+        entry: {
+            app: './tests/test-app.js'
+        },
+
+        output: {
+            filename: '[name].js'
+        },
+
+        resolve: {
+            extensions: ['', '.js', '.elm']
+        },
+
+        module: {
+            loaders: [{
+                    test: /\.elm$/,
+                    exclude: [
+                        /elm-stuff/,
+                        /node_modules/
+                    ],
+                loaders: [
+                    'elm-webpack-loader?cwd=tests'
+                    ]
+                }
+            ]
+        },
+
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: 'tests/index.html'
+            })
+        ],
+
+        devServer: {
+            inline: true,
+            progress: true,
+            stats: 'errors-only'
+        }
+    };
+
+    module.exports = unitTestsOnly;
+} else {
+    console.log('building for production');
+    var extractCssApp = new ExtractTextPlugin('app-[chunkhash].css', {
+        allChunks: true
+    });
+    extractCssVendor = new ExtractTextPlugin('vendor-[chunkhash].css');
+
+    var prodOnly = {
+        output: {
+            path: './dist',
+            filename: '[name]-[chunkhash].min.js',
+            chunkFilename: '[name]-[chunkhash].min.js'
+        },
+
+        module: {
+            loaders: [{
+                    test: /\.css$/,
+                    loader: extractCssVendor.extract('style-loader', 'css-loader')
+                },
+
+                {
+                    test: /src\/Stylesheets.elm/,
+                    loader: extractCssApp.extract(
+                        'style-loader', [
+                            'css-loader',
+                            'postcss-loader',
+                            'elm-css-webpack-loader'
+                        ])
+                },
+
+                {
+                    test: /\.elm$/,
+                    exclude: [
+                        /elm-stuff/,
+                        /node_modules/,
+                        /src\/Stylesheets.elm$/
+                    ],
+                    loader: 'elm-webpack-loader'
+                }
+            ]
+        },
+
+        plugins: [
+            new CopyWebpackPlugin([{
+                from: 'src/index.html'
+            }, {
+                from: 'src/assets',
+                to: 'assets'
+            }]),
+            extractCssApp,
+            extractCssVendor,
+            new UnminifiedWebpackPlugin(),
+            new Webpack.optimize.UglifyJsPlugin({
+                compress: {
+                    warnings: false
+                }
+            })
+        ]
+    };
+
+    module.exports = WebpackMerge(common, prodOnly);
 }
