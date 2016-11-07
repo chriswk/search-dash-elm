@@ -95,6 +95,7 @@ type alias Indicator =
     , info : IndicatorInfo
     , checks : Int
     , cached : Bool
+    , height : Int
     }
 
 

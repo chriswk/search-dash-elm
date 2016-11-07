@@ -24,7 +24,16 @@ gridsterBox : Indicator -> Html Msg
 gridsterBox indicator =
     let
         health =
-            class [ S.statusToCssClass indicator.health ]
+            S.statusToCssClass indicator.health
+
+        heightClass =
+            S.heightToCssClass indicator.height
+
+        widthClass =
+            S.widthToCssClass 1
+
+        cssClasses =
+            class [ health, heightClass, widthClass ]
 
         title =
             case indicator.info.checkUrl of
@@ -35,7 +44,7 @@ gridsterBox indicator =
                     a [ A.href u ] [ text indicator.name ]
 
         header =
-            h1 [ class [ S.PageTitle ] ]
+            h1 [ class [ S.Title ] ]
                 [ title ]
 
         rows =
@@ -54,8 +63,9 @@ gridsterBox indicator =
                 [ tbody [] tableRows
                 ]
     in
-        li [ health ]
-            [ div [ health ]
+        li
+            [ cssClasses ]
+            [ div [ class [ health ] ]
                 [ header
                 , dataTable
                 ]

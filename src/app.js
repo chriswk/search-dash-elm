@@ -4,5 +4,5 @@
   require('./Stylesheets');
 
   var Elm = require('./Main');
-  Elm.Main.embed(document.getElementById('app'));
+  Elm.Main.embed(document.getElementById('container'));
 })();

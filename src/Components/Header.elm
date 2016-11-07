@@ -1,7 +1,7 @@
 module Components.Header exposing (..)
 
 import Html exposing (..)
-import DashStyles as Styles
+import DashStyles as S
 import Html.CssHelpers
 import Models exposing (..)
 import Date
@@ -23,21 +23,10 @@ headerBox : Model -> Html Msg
 headerBox model =
     let
         globalCssStatus =
-            case model.globalStatus of
-                WEAK ->
-                    class [ Styles.Weak ]
+            S.statToCssClass model.globalStatus
 
-                GOOD ->
-                    class [ Styles.Good ]
-
-                BAD ->
-                    class [ Styles.Bad ]
-
-                INACTIVE ->
-                    class [ Styles.Inactive ]
-
-                UNKNOWN ->
-                    class [ Styles.Unknown ]
+        cssClasses =
+            class [ S.PageTitle, globalCssStatus ]
 
         updateStat =
             case model.siteStatus of
@@ -61,4 +50,4 @@ headerBox model =
             "Search Health" ++ updateStat
     in
         div []
-            [ h1 [ globalCssStatus ] [ text textTeaser ] ]
+            [ h1 [ cssClasses ] [ text textTeaser ] ]

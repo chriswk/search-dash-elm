@@ -37,6 +37,7 @@ indicatorDecoder =
         |> required "info" indicatorInfoDecoder
         |> required "checks" int
         |> required "cached" bool
+        |> required "height" int
 
 
 indicatorInfoDecoder : Decoder IndicatorInfo

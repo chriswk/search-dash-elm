@@ -20,7 +20,7 @@ import Components.Header as Header
 --- Style
 
 
-{ class } =
+{ id, class, classList } =
     Html.CssHelpers.withNamespace "searchdash"
 
 
@@ -64,7 +64,7 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ id [ Styles.StatusHolder ] ]
         [ Header.headerBox model
         , statusHolder model
         , Footer.footerBox model
