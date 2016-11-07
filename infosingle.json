@@ -1,0 +1,63 @@
+{"info" : {
+        "details" : {
+          "status" : "GOOD",
+          "health" : "GOOD",
+          "indicators" : {
+            "Bamboo: search" : {
+              "status" : "GOOD",
+              "health" : "GOOD",
+              "name" : "Bamboo: search",
+              "time" : 960,
+              "info" : {
+                "details" : null,
+                "checkurl" : "https://bamboo.finn.no/telemetry.action?filter=labels&labelNames=search_screen",
+                "popOver" : {
+                  "title" : "Bamboo: search",
+                  "status" : "<span class=\"GOOD\">status: <strong>GOOD</strong>. All good</span>",
+                  "text" : "<tr><td>Num builds</td><td>56</td></tr><tr><td>Num failed builds</td><td><span class=\"GOOD\">0</span></td></tr>"
+                },
+                "numChecks" : 1
+              },
+              "row" : -1,
+              "column" : -1,
+              "height" : 2,
+              "checks" : 1,
+              "parent" : "Bamboo",
+              "cached" : true,
+              "muted" : false
+            },
+            "Bamboo: sf-it" : {
+              "status" : "GOOD",
+              "health" : "GOOD",
+              "name" : "Bamboo: sf-it",
+              "time" : 34,
+              "info" : {
+                "details" : null,
+                "checkurl" : "https://bamboo.finn.no/telemetry.action?filter=labels&labelNames=sfit",
+                "popOver" : {
+                  "title" : "Bamboo: sf-it",
+                  "status" : "<span class=\"GOOD\">status: <strong>GOOD</strong>. All good</span>",
+                  "text" : "<tr><td>Num builds</td><td>0</td></tr><tr><td>Num failed builds</td><td><span class=\"GOOD\">0</span></td></tr>"
+                },
+                "numChecks" : 1
+              },
+              "row" : -1,
+              "column" : -1,
+              "height" : 2,
+              "checks" : 1,
+              "parent" : "Bamboo",
+              "cached" : true,
+              "muted" : false
+            }
+          },
+          "checks" : 2
+        },
+        "checkurl" : "https://bamboo.finn.no/allPlans.action",
+        "popOver" : {
+          "title" : "Bamboo",
+          "status" : "<span class=\"GOOD\">status: <strong>GOOD</strong>. All good</span>",
+          "text" : null
+        },
+        "numChecks" : 2
+      }
+}

@@ -3,9 +3,7 @@ module DashStyles exposing (..)
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
 import Css.Elements as E
-import Html.CssHelpers exposing (withNamespace)
 import Styles.Variables as V
-import Color
 
 
 type CssClasses
@@ -30,12 +28,30 @@ type CssClasses
     | Links
     | Popover
     | PopoverContent
+    | PopTable
 
 
 type CssIds
     = Main
 
 
+statusToCssClass : String -> CssClasses
+statusToCssClass status =
+    case status of
+        "WEAK" ->
+            Weak
+
+        "GOOD" ->
+            Good
+
+        "BAD" ->
+            Bad
+
+        _ ->
+            Unknown
+
+
+css : Stylesheet
 css =
     (stylesheet << namespace "searchdash")
         [ E.body

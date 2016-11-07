@@ -1,6 +1,14 @@
 module Models exposing (..)
 
 import Dict exposing (Dict)
+import Http
+
+
+type Msg
+    = NoOp
+    | TogglePoll
+    | StatusFetchFail Http.Error
+    | StatusFetchSucceed SiteStatus
 
 
 type Status
@@ -9,6 +17,19 @@ type Status
     | BAD
     | INACTIVE
     | UNKNOWN
+
+
+dateFormat : String
+dateFormat =
+    "%Y%m%d %H:%M:%S"
+
+
+type alias Model =
+    { globalStatus : Status
+    , polling : Bool
+    , siteStatus : Maybe SiteStatus
+    , lastError : Maybe Http.Error
+    }
 
 
 type alias SiteStatus =
@@ -27,7 +48,7 @@ type alias SiteStatus =
 
 
 type alias IndicatorInfo =
-    { details : IndicatorDetail
+    { details : Maybe IndicatorDetail
     , checkUrl : Maybe String
     , popOver : Popover
     , numChecks : Int
@@ -66,7 +87,7 @@ type alias Indicator =
 
 
 type alias Popover =
-    { title : String
-    , status : String
-    , test : Maybe String
+    { title : Maybe String
+    , status : Maybe String
+    , text : Maybe String
     }

@@ -1,37 +1,20 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Attributes as A
 import Html.App as App
 import DashStyles as Styles
-import Time exposing (Time)
 import Html.CssHelpers
 import Date
-import Models exposing (Status(..), SiteStatus)
+import Models exposing (..)
 import Requests.Status as StatusRequest
 import Http
 import Date.Format
 import Task
-
-
-type Msg
-    = NoOp
-    | TogglePoll
-    | StatusFetchFail Http.Error
-    | StatusFetchSucceed SiteStatus
-
-
-type alias Model =
-    { globalStatus : Status
-    , polling : Bool
-    , siteStatus : Maybe SiteStatus
-    , lastError : Maybe Http.Error
-    }
-
-
-dateFormat : String
-dateFormat =
-    "%Y%m%d %H:%M:%S"
-
+import Dict
+import Components.GridsterBox as G
+import Components.Footer as Footer
+import Components.Header as Header
 
 
 --- Style
@@ -43,6 +26,25 @@ dateFormat =
 
 
 ---
+
+
+statusDecoder : String -> Status
+statusDecoder status =
+    case status of
+        "BAD" ->
+            BAD
+
+        "WEAK" ->
+            WEAK
+
+        "GOOD" ->
+            GOOD
+
+        "INACTIVE" ->
+            INACTIVE
+
+        _ ->
+            UNKNOWN
 
 
 getStatus : Cmd Msg
@@ -63,88 +65,32 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ headerBox model
-        , boxes model
-        , footerBox model
+        [ Header.headerBox model
+        , statusHolder model
+        , Footer.footerBox model
         ]
 
 
-boxes : Model -> Html Msg
-boxes model =
+statusHolder : Model -> Html Msg
+statusHolder model =
     let
-        siteStatus =
+        statusH =
             case model.siteStatus of
                 Nothing ->
-                    ""
+                    text ""
 
-                Just stat ->
-                    toString stat
-    in
-        div [] [ text siteStatus ]
-
-
-headerBox : Model -> Html Msg
-headerBox model =
-    let
-        globalCssStatus =
-            case model.globalStatus of
-                WEAK ->
-                    class [ Styles.Weak ]
-
-                GOOD ->
-                    class [ Styles.Good ]
-
-                BAD ->
-                    class [ Styles.Bad ]
-
-                INACTIVE ->
-                    class [ Styles.Inactive ]
-
-                UNKNOWN ->
-                    class [ Styles.Unknown ]
-
-        updateStat =
-            case model.siteStatus of
-                Nothing ->
-                    ""
-
-                Just stat ->
+                Just status ->
                     let
-                        d =
-                            Date.fromTime stat.checkPerformed
+                        indicators =
+                            Dict.values status.indicators
 
-                        ds =
-                            Date.Format.format dateFormat d
-
-                        taken =
-                            (toString stat.timeTaken)
+                        elements =
+                            List.map G.gridsterBox indicators
                     in
-                        " - " ++ ds ++ " (" ++ taken ++ "ms)"
-
-        textTeaser =
-            "Search Health" ++ updateStat
+                        ul [] elements
     in
-        div []
-            [ h1 [ globalCssStatus ] [ text textTeaser ] ]
-
-
-footerBox : Model -> Html Msg
-footerBox model =
-    let
-        error =
-            case model.lastError of
-                Nothing ->
-                    ""
-
-                Just err ->
-                    toString err
-    in
-        div [ class [ Styles.Links ] ]
-            [ ul []
-                [ li [] [ text "Controlpanel" ]
-                , text error
-                ]
-            ]
+        div [ A.id "statusHolder", class [ Styles.Gridster ] ]
+            [ statusH ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -160,7 +106,11 @@ update msg model =
             Debug.log "Failed fetching data" { model | lastError = Just error } ! []
 
         StatusFetchSucceed status ->
-            { model | siteStatus = Just status } ! []
+            let
+                globalStatus =
+                    statusDecoder status.status
+            in
+                { model | siteStatus = Just status, globalStatus = globalStatus } ! []
 
 
 main : Program Never
