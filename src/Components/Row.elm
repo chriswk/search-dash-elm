@@ -2,7 +2,6 @@ module Components.Row exposing (..)
 
 import Html exposing (..)
 import Html.CssHelpers
-import Html.Attributes exposing (..)
 import DashStyles as S
 import Models exposing (..)
 

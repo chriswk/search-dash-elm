@@ -1,7 +1,7 @@
 module Parsers.Status exposing (..)
 
 import Json.Decode.Pipeline exposing (required, decode, optional, nullable)
-import Json.Decode exposing (Decoder, andThen, decodeValue, dict, succeed, string, (:=), float, map, at, list, int, bool, maybe, oneOf, null)
+import Json.Decode exposing (Decoder, object1, andThen, decodeValue, dict, succeed, string, (:=), float, map, at, list, int, bool, maybe, oneOf, null)
 import Models exposing (..)
 import Dict exposing (Dict)
 
@@ -42,10 +42,10 @@ indicatorDecoder =
 indicatorInfoDecoder : Decoder IndicatorInfo
 indicatorInfoDecoder =
     succeed IndicatorInfo
-        |> required "details" (nullable indicatorDetailsDecoder)
         |> required "checkurl" (nullable string)
-        |> required "popOver" popoverDecoder
+        |> optional "details" indicatorDetailsDecoder Empty
         |> required "numChecks" int
+        |> required "popOver" popoverDecoder
 
 
 popoverDecoder : Decoder Popover
@@ -56,23 +56,43 @@ popoverDecoder =
         |> required "text" (nullable string)
 
 
+toDetail : Int -> String -> String -> Dict String IndicatorDetailInfo -> IndicatorDetail
+toDetail checks health status indicators =
+    Detail { checks = checks, health = health, status = status, indicators = indicators }
+
+
 indicatorDetailsDecoder : Decoder IndicatorDetail
 indicatorDetailsDecoder =
-    succeed IndicatorDetail
-        |> required "status" string
-        |> required "health" string
-        |> required "indicators" (dict indicatorDetailInfoDecoder)
+    decode toDetail
         |> required "checks" int
+        |> required "health" string
+        |> required "status" string
+        |> required "indicators" (dict indicatorDetailInfoDecoder)
 
 
 indicatorDetailInfoDecoder : Decoder IndicatorDetailInfo
 indicatorDetailInfoDecoder =
     succeed IndicatorDetailInfo
-        |> required "status" string
-        |> required "health" string
-        |> required "name" string
-        |> required "time" int
-        |> required "checks" int
-        |> required "parent" (nullable string)
+        |> optional "arrow_value" (nullable float) Nothing
         |> required "cached" bool
+        |> required "checks" int
+        |> required "health" string
+        |> required "info" detailInfoInfoDecoder
+        |> optional "lastWeek" (nullable int) Nothing
+        |> optional "middle" (nullable int) Nothing
         |> required "muted" bool
+        |> required "name" string
+        |> required "parent" (nullable string)
+        |> optional "percent_change" (nullable float) Nothing
+        |> optional "percent_change_yesterday" (nullable float) Nothing
+        |> required "status" string
+        |> required "time" int
+        |> optional "today" (nullable int) Nothing
+        |> optional "yesterday" (nullable int) Nothing
+
+
+detailInfoInfoDecoder =
+    decode IndicatorDetailInfoInfo
+        |> required "checkurl" (nullable string)
+        |> required "popOver" popoverDecoder
+        |> required "numChecks" int

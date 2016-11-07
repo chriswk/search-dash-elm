@@ -47,31 +47,43 @@ type alias SiteStatus =
     }
 
 
+type IndicatorDetail
+    = Empty
+    | Detail { status : String, health : String, indicators : Dict String IndicatorDetailInfo, checks : Int }
+
+
 type alias IndicatorInfo =
-    { details : Maybe IndicatorDetail
-    , checkUrl : Maybe String
-    , popOver : Popover
+    { checkUrl : Maybe String
+    , details : IndicatorDetail
     , numChecks : Int
-    }
-
-
-type alias IndicatorDetail =
-    { status : String
-    , health : String
-    , indicators : Dict String IndicatorDetailInfo
-    , checks : Int
+    , popOver : Popover
     }
 
 
 type alias IndicatorDetailInfo =
-    { status : String
-    , health : String
-    , name : String
-    , time : Int
-    , checks : Int
-    , parent : Maybe String
+    { arrow_value : Maybe Float
     , cached : Bool
+    , checks : Int
+    , health : String
+    , info : IndicatorDetailInfoInfo
+    , lastWeek : Maybe Int
+    , middle : Maybe Int
     , muted : Bool
+    , name : String
+    , parent : Maybe String
+    , percent_change : Maybe Float
+    , percent_change_yesterday : Maybe Float
+    , status : String
+    , time : Int
+    , today : Maybe Int
+    , yesterday : Maybe Int
+    }
+
+
+type alias IndicatorDetailInfoInfo =
+    { checkurl : Maybe String
+    , popover : Popover
+    , numChecks : Int
     }
 
 

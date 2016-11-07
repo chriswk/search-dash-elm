@@ -40,11 +40,11 @@ gridsterBox indicator =
 
         rows =
             case indicator.info.details of
-                Nothing ->
+                Empty ->
                     []
 
-                Just details ->
-                    Dict.values details.indicators
+                Detail d ->
+                    Dict.values d.indicators
 
         tableRows =
             List.map Row.row rows
