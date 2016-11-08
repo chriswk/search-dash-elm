@@ -26,6 +26,7 @@ type CssClasses
     | HostShortname
     | Widget
     | Gridster
+    | IndicatorList
     | Links
     | Popover
     | PopoverContent
@@ -45,11 +46,106 @@ type CssClasses
     | Size3X
     | Size4X
     | Size5X
+    | Col1
+    | Col2
+    | Col3
+    | Col4
+    | Col5
+    | Col6
+    | Col7
+    | Col8
+    | Col9
+    | Col10
+    | Row1
+    | Row2
+    | Row3
+    | Row4
+    | Row5
+    | Row6
+    | Row7
+    | Row8
+    | Row9
+    | Row10
+    | GridsterRow
 
 
 type CssIds
     = Main
     | StatusHolder
+
+
+colToCssClass : Int -> CssClasses
+colToCssClass col =
+    case col of
+        1 ->
+            Col1
+
+        2 ->
+            Col2
+
+        3 ->
+            Col3
+
+        4 ->
+            Col4
+
+        5 ->
+            Col5
+
+        6 ->
+            Col6
+
+        7 ->
+            Col7
+
+        8 ->
+            Col8
+
+        9 ->
+            Col9
+
+        10 ->
+            Col10
+
+        _ ->
+            Col1
+
+
+rowToCssClass : Int -> CssClasses
+rowToCssClass row =
+    case row of
+        1 ->
+            Row1
+
+        2 ->
+            Row2
+
+        3 ->
+            Row3
+
+        4 ->
+            Row4
+
+        5 ->
+            Row5
+
+        6 ->
+            Row6
+
+        7 ->
+            Row7
+
+        8 ->
+            Row8
+
+        9 ->
+            Row9
+
+        10 ->
+            Row10
+
+        _ ->
+            Row1
 
 
 statToCssClass : Status -> CssClasses
@@ -177,6 +273,30 @@ widthToPx w =
         width (px pxCount)
 
 
+colToLeft : Int -> Mixin
+colToLeft col =
+    let
+        pxCount =
+            if col <= 1 then
+                6
+            else
+                (6 + (col * 212))
+    in
+        left (px pxCount)
+
+
+rowToTop : Int -> Mixin
+rowToTop row =
+    let
+        pxCount =
+            if row <= 1 then
+                6
+            else
+                (6 + (row * 132))
+    in
+        top (px pxCount)
+
+
 css : Stylesheet
 css =
     (stylesheet << namespace "searchdash")
@@ -185,6 +305,8 @@ css =
             , minWidth (px 1280)
             , color (hex "ffffff")
             , property "background" <| .value <| (hex "222222")
+            , fontSize (px 14)
+            , lineHeight (num 1.42)
             ]
         , E.ul
             [ listStyleType none
@@ -222,6 +344,11 @@ css =
                 , textOverflow ellipsis
                 ]
             ]
+        , (.) IndicatorList
+            [ height (px 792)
+            , width (px 1908)
+            , position relative
+            ]
         , (.) Good
             [ property "background" <| .value <| V.goodColour ]
         , (.) Bad
@@ -242,6 +369,7 @@ css =
             , withClass Bad [ property "background" <| .value <| V.red ]
             , withClass Unknown [ property "background" <| .value <| V.deepPink ]
             ]
+        , (.) GridsterRow [ position absolute ]
         , (.) IconArrowUp [ color V.goodColour ]
         , (.) IconArrowDown [ color V.badColour ]
         , (.) IconArrowRight [ color (hex "ffffff") ]
@@ -260,4 +388,24 @@ css =
         , (.) Size3X [ widthToPx 3 ]
         , (.) Size4X [ widthToPx 4 ]
         , (.) Size5X [ widthToPx 5 ]
+        , (.) Col1 [ colToLeft 1 ]
+        , (.) Col2 [ colToLeft 2 ]
+        , (.) Col3 [ colToLeft 3 ]
+        , (.) Col4 [ colToLeft 4 ]
+        , (.) Col5 [ colToLeft 5 ]
+        , (.) Col6 [ colToLeft 6 ]
+        , (.) Col7 [ colToLeft 7 ]
+        , (.) Col8 [ colToLeft 8 ]
+        , (.) Col9 [ colToLeft 9 ]
+        , (.) Col10 [ colToLeft 10 ]
+        , (.) Row1 [ rowToTop 1 ]
+        , (.) Row2 [ rowToTop 2 ]
+        , (.) Row3 [ rowToTop 3 ]
+        , (.) Row4 [ rowToTop 4 ]
+        , (.) Row5 [ rowToTop 5 ]
+        , (.) Row6 [ rowToTop 6 ]
+        , (.) Row7 [ rowToTop 7 ]
+        , (.) Row8 [ rowToTop 8 ]
+        , (.) Row9 [ rowToTop 9 ]
+        , (.) Row10 [ rowToTop 10 ]
         ]

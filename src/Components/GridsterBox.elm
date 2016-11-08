@@ -32,8 +32,14 @@ gridsterBox indicator =
         widthClass =
             S.widthToCssClass 1
 
+        colClass =
+            S.colToCssClass indicator.column
+
+        rowClass =
+            S.rowToCssClass indicator.row
+
         cssClasses =
-            class [ health, heightClass, widthClass ]
+            class [ health, heightClass, widthClass, colClass, rowClass, S.GridsterRow ]
 
         title =
             case indicator.info.checkUrl of

@@ -38,6 +38,8 @@ indicatorDecoder =
         |> required "checks" int
         |> required "cached" bool
         |> required "height" int
+        |> required "row" int
+        |> required "column" int
 
 
 indicatorInfoDecoder : Decoder IndicatorInfo
@@ -92,6 +94,7 @@ indicatorDetailInfoDecoder =
         |> optional "yesterday" (nullable int) Nothing
 
 
+detailInfoInfoDecoder : Decoder IndicatorDetailInfoInfo
 detailInfoInfoDecoder =
     decode IndicatorDetailInfoInfo
         |> required "checkurl" (nullable string)
